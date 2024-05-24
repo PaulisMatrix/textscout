@@ -21,3 +21,7 @@ type MovieData struct {
 	VoteAverage   float64 `json:"vote_average,omitempty"`
 	VoteCount     int64   `json:"vote_count,omitempty"`
 }
+
+type Response struct {
+	Movies []MovieData `json:"movies"`
+}

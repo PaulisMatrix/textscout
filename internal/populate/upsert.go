@@ -6,9 +6,11 @@ import (
 	"circuithouse/internal/database"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"os"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -27,6 +29,8 @@ func (d *InsertData) InsertMovies() {
 	}
 
 	moviesDB := database.New(postgres.DB)
+
+	start := time.Now()
 
 	fd, err := os.Open(d.FilePath)
 	if err != nil {
@@ -102,5 +106,7 @@ func (d *InsertData) InsertMovies() {
 		}
 
 	}
+
+	fmt.Printf("time taken to read and write to database: %f", time.Now().Sub(start).Seconds())
 
 }
