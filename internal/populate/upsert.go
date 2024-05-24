@@ -107,6 +107,6 @@ func (d *InsertData) InsertMovies() {
 
 	}
 
-	fmt.Printf("time taken to read and write to database: %f", time.Now().Sub(start).Seconds())
+	fmt.Printf("time taken to read and write to database: %d", time.Now().Sub(start).Milliseconds())
 
 }

@@ -2,10 +2,11 @@
 search API over in-memory movies dataset
 
 
-# Approach1
+# Approach1: (Using database for searching)
 
 * Store the records in a database. 
 * Query the db: `select * from movies where movie_name like "%'name'%" and movie_description like "%'desc'%"`
+* Furthermore to optimise this query, we can have a `secondary index` on `movie_name` or `movie_description` depending on the read query patterns the server receives.
 
 
 
@@ -40,4 +41,6 @@ search API over in-memory movies dataset
             ]
         }```
 
-# 
+# Approach2: (Using an in-memory Inverted Index for searching)
+
+* 
