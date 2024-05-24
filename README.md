@@ -43,4 +43,12 @@ search API over in-memory movies dataset
 
 # Approach2: (Using an in-memory Inverted Index for searching)
 
-* 
+* Combine `movie_name` and `movie_description` and build the inverted index using this whole text. This is fine since its safe to say both are related since they are talking about the same movie.
+* This content is passed through tokenizing + normalising + stopWordsRemoval + stemming pipeline to generate the final keywords/tokens.
+* Inverted index: `keyword: []MovieIDs`. Its a map of keyword and value being list of all movies ids containing that keyword.
+* `index.Add([]MovieData)` : builds the index. 
+* `index.Search(query)` : searches the index and returns the movie ids containing the query keywords. That's the final result.
+* Small catch: Works only for english words since other languages contexts/meanings change.
+
+
+# 

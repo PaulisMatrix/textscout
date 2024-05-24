@@ -5,6 +5,7 @@ go 1.21.1
 require (
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/joho/godotenv v1.5.1
+	github.com/kljensen/snowball v0.9.0
 )
 
 require (
