@@ -7,6 +7,7 @@ search API over in-memory movies dataset
 * Store the records in a database. 
 * Query the db: `select * from movies where movie_name like "%'name'%" and movie_description like "%'desc'%"`
 * Furthermore to optimise this query, we can have a `secondary index` on `movie_name` or `movie_description` depending on the read query patterns the server receives.
+* Command: `go run main.go -command=runServer -searchBy=database -filePath=/Users/rushiyadwade/Documents/go_dir/source/circuitsearch/DataSet.json `
 
 
 
@@ -27,7 +28,7 @@ search API over in-memory movies dataset
                         28,
                         12
                     ],
-                    "id": 1,
+                    "id": 823464,
                     "original_language": "en",
                     "original_title": "Godzilla x Kong: The New Empire",
                     "overview": "Following their explosive showdown, Godzilla and Kong must reunite against a colossal undiscovered threat hidden within our world, challenging their very existence – and our own.",
@@ -39,7 +40,7 @@ search API over in-memory movies dataset
                     "vote_count": 1920
                 }
             ]
-        }```
+        }
 
 # Approach2: (Using an in-memory Inverted Index for searching)
 
@@ -48,6 +49,7 @@ search API over in-memory movies dataset
 * Inverted index: `keyword: []MovieIDs`. Its a map of keyword and value being list of all movies ids containing that keyword.
 * `index.Add([]MovieData)` : builds the index. 
 * `index.Search(query)` : searches the index and returns the movie ids containing the query keywords. That's the final result.
+* Command : `go run main.go -command=runServer -searchBy=inmemIndex -filePath=/Users/rushiyadwade/Documents/go_dir/source/circuitsearch/DataSet.json`
 * Small catch: Works only for english words since other languages contexts/meanings change.
 
 

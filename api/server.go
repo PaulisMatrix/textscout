@@ -3,6 +3,7 @@ package api
 import (
 	"circuithouse/common"
 	"circuithouse/internal/database"
+	"circuithouse/textsearch"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -14,7 +15,9 @@ import (
 )
 
 type SearchAPI struct {
-	querier database.Querier
+	querier       database.Querier
+	inMemoryIndex *textsearch.InMemSearch
+	searchBy      string
 }
 
 // Middlewares:
@@ -51,15 +54,15 @@ func Logger(next http.Handler) http.Handler {
 	return f
 }
 
-func (s *SearchAPI) readyResponse(dbResp []database.Movie) Response {
-	movies := []MovieData{}
+func (s *SearchAPI) readyResponseDB(resp []database.Movie) common.Response {
+	movies := []common.MovieData{}
 
-	for _, data := range dbResp {
-		d := MovieData{
+	for _, data := range resp {
+		d := common.MovieData{
 			Adult:         data.Adult.Bool,
 			BackdropPath:  data.BackdropPath.String,
 			GenreIDs:      data.GenreIds,
-			ID:            data.ID,
+			ID:            data.MovieID,
 			Language:      data.MovieLanguage.String,
 			OriginalTitle: data.MovieOriginalTitle.String,
 			Overview:      data.MovieOverview.String,
@@ -74,19 +77,48 @@ func (s *SearchAPI) readyResponse(dbResp []database.Movie) Response {
 		movies = append(movies, d)
 	}
 
-	return Response{
+	return common.Response{
 		Movies: movies,
 	}
 
 }
 
-func (s *SearchAPI) validateAndWriteAPIResponse(w http.ResponseWriter, dbResp []database.Movie) {
+func (s *SearchAPI) readyResponseInMemIndex(resp []textsearch.Document) common.Response {
+	movies := []common.MovieData{}
+
+	for _, data := range resp {
+		d := common.MovieData{
+			Adult:         data.Adult,
+			BackdropPath:  data.BackdropPath,
+			GenreIDs:      data.GenreIDs,
+			ID:            data.MovieID,
+			Language:      data.Language,
+			OriginalTitle: data.OriginalTitle,
+			Overview:      data.Overview,
+			Popularity:    data.Popularity,
+			PosterPath:    data.PosterPath,
+			ReleaseDate:   data.ReleaseDate,
+			MovieTitle:    data.MovieTitle,
+			Video:         data.Video,
+			VoteAverage:   data.VoteAverage,
+			VoteCount:     data.VoteCount,
+		}
+		movies = append(movies, d)
+	}
+
+	return common.Response{
+		Movies: movies,
+	}
+
+}
+
+func (s *SearchAPI) validateAndWriteAPIResponseDatabase(w http.ResponseWriter, dbResp []database.Movie) {
 	if len(dbResp) == 0 {
 		http.Error(w, "no records found", http.StatusNotFound)
 		return
 	}
 
-	jsonBytes, err := json.Marshal(s.readyResponse(dbResp))
+	jsonBytes, err := json.Marshal(s.readyResponseDB(dbResp))
 	if err != nil {
 		log.Fatalf("failed to marshal the resp: %+v", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -98,11 +130,25 @@ func (s *SearchAPI) validateAndWriteAPIResponse(w http.ResponseWriter, dbResp []
 	w.Write(jsonBytes)
 }
 
-func (s *SearchAPI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// search the db given the search query/queries
-	values := r.URL.Query()
-	title := values.Get("title")
-	desc := values.Get("desc")
+func (s *SearchAPI) validateAndWriteAPIResponseInMemIndex(w http.ResponseWriter, inMemResp []textsearch.Document) {
+	if len(inMemResp) == 0 {
+		http.Error(w, "no records found", http.StatusNotFound)
+		return
+	}
+
+	jsonBytes, err := json.Marshal(s.readyResponseInMemIndex(inMemResp))
+	if err != nil {
+		log.Fatalf("failed to marshal the resp: %+v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonBytes)
+}
+
+func (s *SearchAPI) useDatabase(w http.ResponseWriter, title string, desc string) {
 
 	if title != "" && desc != "" {
 		// search by both and return the results
@@ -126,7 +172,7 @@ func (s *SearchAPI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
-		s.validateAndWriteAPIResponse(w, resp)
+		s.validateAndWriteAPIResponseDatabase(w, resp)
 	} else if title != "" {
 		// search by the title
 		context, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -143,7 +189,7 @@ func (s *SearchAPI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
-		s.validateAndWriteAPIResponse(w, resp)
+		s.validateAndWriteAPIResponseDatabase(w, resp)
 	} else {
 		// search by the desc
 		context, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -160,29 +206,67 @@ func (s *SearchAPI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
-		s.validateAndWriteAPIResponse(w, resp)
+		s.validateAndWriteAPIResponseDatabase(w, resp)
+	}
+}
+
+func (s *SearchAPI) useInMemoryIndex(w http.ResponseWriter, title string, desc string) {
+	matchedDocIds := s.inMemoryIndex.Search(common.ConcatStrings(title, desc))
+
+	s.validateAndWriteAPIResponseInMemIndex(w, matchedDocIds)
+
+}
+
+func (s *SearchAPI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// search the db given the search query/queries
+	values := r.URL.Query()
+	title := values.Get("title")
+	desc := values.Get("desc")
+
+	if s.searchBy == "inmemIndex" {
+		s.useInMemoryIndex(w, title, desc)
+	} else {
+		s.useDatabase(w, title, desc)
 	}
 
 }
 
-func StartServer(config *common.Config) {
-	// REST server
-	// One Endpoint: localhost:8080/api/v1/search?title=""&desc=""
-	pgDB, err := database.NewPostgres(config.DBName, config.DBUser, config.DBPass)
+func initDB(dbName, dbUser, dbPass string) *database.Queries {
+	pgDB, err := database.NewPostgres(dbName, dbUser, dbPass)
 	if err != nil {
 		panic(err.Error())
 	}
-
 	queries := database.New(pgDB.DB)
-	s := &SearchAPI{
-		querier: queries,
+	return queries
+}
+
+func getHandler(config *common.Config, searchBy string, filePath string) *SearchAPI {
+	if searchBy == "inmemIndex" {
+		log.Println("using the in-memory index for searching")
+		return &SearchAPI{
+			inMemoryIndex: textsearch.GetInMemSearch(filePath),
+			searchBy:      searchBy,
+		}
+	} else {
+		log.Println("using the database for searching")
+		return &SearchAPI{
+			querier:  initDB(config.DBName, config.DBUser, config.DBPass),
+			searchBy: searchBy,
+		}
 	}
+}
+
+func StartServer(config *common.Config, searchBy string, filePath string) {
+	// REST server
+	// One Endpoint: localhost:8080/api/v1/search?title=""&desc=""
+
+	s := getHandler(config, searchBy, filePath)
 
 	handler := Validator(Logger(s))
 	http.Handle("/api/v1/search", handler)
 
 	fmt.Println("starting the server at port 8080")
-	err = http.ListenAndServe(":8080", handler)
+	err := http.ListenAndServe(":8080", handler)
 	if err != nil {
 		panic(err.Error())
 	}

@@ -1,7 +1,6 @@
 package textsearch
 
 import (
-	"circuithouse/api"
 	"circuithouse/common"
 )
 
@@ -18,7 +17,7 @@ type IndexMap struct {
 }
 type Index map[string]*IndexMap
 
-func (idx Index) Add(docs []api.MovieData) {
+func (idx Index) Add(docs []Document) {
 	for _, doc := range docs {
 		for _, token := range analyze(common.ConcatStrings(doc.MovieTitle, doc.Overview)) {
 			indexMap, ok := idx[token]
@@ -26,21 +25,21 @@ func (idx Index) Add(docs []api.MovieData) {
 				// init Index for each new token
 				idx[token] = &IndexMap{
 					DocFreq:     1,
-					PostingList: []int{int(doc.ID)},
+					PostingList: []int{doc.ID},
 				}
 				continue
 			}
 
 			// avoids adding the same ID twice if the word is repeated more than once in the same sentence.
 			curIds := indexMap.PostingList
-			if len(curIds) != 0 && curIds[len(curIds)-1] == int(doc.ID) {
+			if len(curIds) != 0 && curIds[len(curIds)-1] == doc.ID {
 				// increment frequency
 				indexMap.DocFreq++
 				continue
 			}
 
 			// add the new docID and increment the frequency
-			indexMap.PostingList = append(curIds, int(doc.ID))
+			indexMap.PostingList = append(curIds, doc.ID)
 			indexMap.DocFreq++
 		}
 	}

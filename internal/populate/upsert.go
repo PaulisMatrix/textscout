@@ -1,7 +1,6 @@
 package populate
 
 import (
-	"circuithouse/api"
 	"circuithouse/common"
 	"circuithouse/internal/database"
 	"context"
@@ -44,7 +43,7 @@ func (d *InsertData) InsertMovies() {
 		log.Fatal("failed to read the file", err)
 	}
 
-	var results api.Results
+	var results common.Results
 	err = json.Unmarshal(jsonBytes, &results)
 	if err != nil {
 		log.Fatal("failed to unmarshal the json", err)
