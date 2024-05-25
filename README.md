@@ -1,5 +1,5 @@
 # circuitsearch
-search API over in-memory movies dataset
+* search API over movies dataset.
 
 
 # Approach1: (Using database for searching)
