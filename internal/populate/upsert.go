@@ -5,7 +5,6 @@ import (
 	"circuithouse/internal/database"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -106,6 +105,6 @@ func (d *InsertData) InsertMovies() {
 
 	}
 
-	fmt.Printf("time taken to read and write to database: %d", time.Now().Sub(start).Milliseconds())
+	log.Printf("time taken to read and write to database: %d", time.Now().Sub(start).Milliseconds())
 
 }

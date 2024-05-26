@@ -6,7 +6,6 @@ import (
 	"circuithouse/textsearch"
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -46,7 +45,7 @@ func Validator(next http.Handler) http.Handler {
 func Logger(next http.Handler) http.Handler {
 	f := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		fmt.Printf("Method: %s and URI: %s\n", r.Method, r.RequestURI)
+		log.Printf("Method: %s and URI: %s\n", r.Method, r.RequestURI)
 
 		next.ServeHTTP(w, r)
 
@@ -265,7 +264,7 @@ func StartServer(config *common.Config, searchBy string, filePath string) {
 	handler := Validator(Logger(s))
 	http.Handle("/api/v1/search", handler)
 
-	fmt.Println("starting the server at port 8080")
+	log.Println("starting the server at port 8080")
 	err := http.ListenAndServe(":8080", handler)
 	if err != nil {
 		panic(err.Error())
