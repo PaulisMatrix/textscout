@@ -210,7 +210,7 @@ func (s *SearchAPI) useDatabase(w http.ResponseWriter, title string, desc string
 }
 
 func (s *SearchAPI) useInMemoryIndex(w http.ResponseWriter, title string, desc string) {
-	matchedDocIds := s.inMemoryIndex.Search(common.ConcatStrings(title, desc))
+	matchedDocIds := s.inMemoryIndex.Intersection(common.ConcatStrings(title, desc))
 
 	s.validateAndWriteAPIResponseInMemIndex(w, matchedDocIds)
 

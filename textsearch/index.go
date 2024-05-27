@@ -46,7 +46,7 @@ func (idx Index) Add(docs []Document) {
 
 }
 
-func (idx Index) Search(query string) []int {
+func (idx Index) SearchIntersection(query string) []int {
 	docIDs := make([]int, 0)
 
 	for _, token := range analyze(query) {
@@ -62,7 +62,7 @@ func (idx Index) Search(query string) []int {
 			docIDs = indexMap.PostingList
 			continue
 		}
-		docIDs = Intersection(docIDs, indexMap.PostingList)
+		docIDs = idx.intersection(docIDs, indexMap.PostingList)
 	}
 
 	return docIDs
@@ -77,7 +77,8 @@ func (idx Index) WordFreq(word string) int {
 	return freq.DocFreq
 }
 
-func Intersection(seta, setb []int) []int {
+// a=[0, 4] intersection b=[0,1] -> c=[0]
+func (idx Index) intersection(seta, setb []int) []int {
 	intersection := make([]int, 0)
 	bitmap := make([]int, MAX_BITMAP_LEN)
 
@@ -104,6 +105,56 @@ func Intersection(seta, setb []int) []int {
 
 	return intersection
 
+}
+
+func (idx Index) SearchUnion(query string) []int {
+	docIDs := make([]int, 0)
+
+	for _, token := range analyze(query) {
+		// get the docIDs list from inverted index for each token
+		// find the common IDs from all such list
+		indexMap, ok := idx[token]
+		if !ok {
+			// token doesn't exist, do we just return or return the found docIDs
+			continue
+		}
+		if len(docIDs) == 0 {
+			// init
+			docIDs = indexMap.PostingList
+			continue
+		}
+		docIDs = idx.union(docIDs, indexMap.PostingList)
+	}
+
+	return docIDs
+}
+
+// a=[0, 4] union b=[0,1] -> c=[0, 1, 4]
+func (idx Index) union(seta, setb []int) []int {
+	union := make([]int, 0)
+	bitmap := make([]int, MAX_BITMAP_LEN)
+
+	// compute the bitmap first
+	for _, item := range seta {
+		index, mask := divmod(item, MAX_BIT_LEN)
+		bitMask := int(1 << mask)
+		bitmap[index] |= bitMask
+		union = append(union, item)
+	}
+
+	// calculate the union
+	for _, item := range setb {
+		index, mask := divmod(item, MAX_BIT_LEN)
+		source := int(1 << mask)
+		target := bitmap[index]
+
+		// dont add the same id twice
+		if source&target == 0 {
+			union = append(union, item)
+		}
+	}
+
+	return union
 }
 
 func divmod(numerator, denominator int) (quotient, remainder int) {
