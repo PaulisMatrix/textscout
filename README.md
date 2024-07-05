@@ -1,4 +1,4 @@
-# circuitsearch
+# textscout
 * search API over movies dataset.
 
 
@@ -7,7 +7,7 @@
 * Store the records in a database. 
 * Query the db: `select * from movies where movie_name like "%'name'%" and movie_description like "%'desc'%"`
 * Furthermore to optimise this query, we can have a `secondary index` on `movie_name` or `movie_description` depending on the read query patterns the server receives.
-* Command: `go run main.go -command=runServer -searchBy=database -filePath=/Users/rushiyadwade/Documents/go_dir/source/circuitsearch/DataSet.json `
+* Command: `go run main.go -command=runServer -searchBy=database -filePath=/Users/rushiyadwade/Documents/go_dir/source/textscout/DataSet.json `
 * Optimizing postgres for LIKE operator(using GIN/GIST trigram index instead of B-Tree)
     * Postgres offers two primary full-text search approaches - tsvector indexes and trigram indexes. Tsvector indexes excel in complex linguistic searches, while trigram indexes optimize substring searches and fuzzy matching.
     * https://stackoverflow.com/a/13452528
@@ -15,6 +15,17 @@
     * https://www.yugabyte.com/blog/postgresql-like-query-performance-variations/
     * Postgres [Full Text Search](https://www.postgresql.org/docs/current/textsearch.html)
 * 
+
+
+# Approach2: (Using an in-memory Inverted Index for searching)
+
+* Combine `movie_name` and `movie_description` and build the inverted index using this whole text. This is fine since its safe to say both are related since they are talking about the same movie.
+* This content is passed through tokenizing + normalising + stopWordsRemoval + stemming pipeline to generate the final keywords/tokens.
+* Inverted index: `keyword: []MovieIDs`. Its a map of keyword and value being list of all movies ids containing that keyword.
+* `index.Add([]MovieData)` : builds the index. 
+* `index.Search(query)` : searches the index and returns the movie ids containing the query keywords. That's the final result.
+* Command : `go run main.go -command=runServer -searchBy=inmemIndex -filePath=/Users/rushiyadwade/Documents/go_dir/source/textscout/DataSet.json`
+* Small catch: Works only for english words since other languages contexts/meanings change.
 
 
 # API structure:
@@ -47,16 +58,5 @@
                 }
             ]
         }
-
-# Approach2: (Using an in-memory Inverted Index for searching)
-
-* Combine `movie_name` and `movie_description` and build the inverted index using this whole text. This is fine since its safe to say both are related since they are talking about the same movie.
-* This content is passed through tokenizing + normalising + stopWordsRemoval + stemming pipeline to generate the final keywords/tokens.
-* Inverted index: `keyword: []MovieIDs`. Its a map of keyword and value being list of all movies ids containing that keyword.
-* `index.Add([]MovieData)` : builds the index. 
-* `index.Search(query)` : searches the index and returns the movie ids containing the query keywords. That's the final result.
-* Command : `go run main.go -command=runServer -searchBy=inmemIndex -filePath=/Users/rushiyadwade/Documents/go_dir/source/circuitsearch/DataSet.json`
-* Small catch: Works only for english words since other languages contexts/meanings change.
-
 
 # 

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"circuithouse/api"
-	"circuithouse/common"
-	"circuithouse/internal/populate"
 	"flag"
 	"log"
+	"textscout/api"
+	"textscout/common"
+	"textscout/internal/populate"
 )
 
 func main() {
@@ -34,7 +34,7 @@ func main() {
 		}
 		u.InsertMovies()
 	} else if commandFlag == "runServer" {
-		if filePath == "" {
+		if searchBy == "inmemIndex" && filePath == "" {
 			log.Fatal("specify the filepath to read the data from.")
 		}
 		api.StartServer(config, searchBy, filePath)

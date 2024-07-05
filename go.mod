@@ -1,4 +1,4 @@
-module circuithouse
+module textscout
 
 go 1.21.1
 

@@ -1,13 +1,13 @@
 package populate
 
 import (
-	"circuithouse/common"
-	"circuithouse/internal/database"
 	"context"
 	"encoding/json"
 	"io"
 	"log"
 	"os"
+	"textscout/common"
+	"textscout/internal/database"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"

@@ -1,13 +1,13 @@
 package api
 
 import (
-	"circuithouse/common"
-	"circuithouse/internal/database"
-	"circuithouse/textsearch"
 	"context"
 	"encoding/json"
 	"log"
 	"net/http"
+	"textscout/common"
+	textsearch "textscout/inmemsearch"
+	"textscout/internal/database"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"

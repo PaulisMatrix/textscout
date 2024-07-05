@@ -1,11 +1,11 @@
-package textsearch
+package inmemsearch
 
 import (
-	"circuithouse/common"
 	"encoding/json"
 	"io"
 	"log"
 	"os"
+	"textscout/common"
 )
 
 type Document struct {

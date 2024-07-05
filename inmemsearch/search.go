@@ -1,4 +1,4 @@
-package textsearch
+package inmemsearch
 
 type InMemSearch struct {
 	idx       Index

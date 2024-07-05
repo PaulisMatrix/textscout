@@ -1,12 +1,12 @@
-package textsearch
+package inmemsearch
 
 import (
-	"circuithouse/common"
 	"testing"
+	"textscout/common"
 )
 
 func TestTextSearchANDOperation(t *testing.T) {
-	filePath := "/Users/rushiyadwade/Documents/go_dir/source/circuitsearch/sample.json"
+	filePath := "/Users/rushiyadwade/Documents/go_dir/source/textscout/sample.json"
 	inMemIdx := GetInMemSearch(filePath)
 	title := "Kong"
 	desc := "Godzilla"
@@ -20,7 +20,7 @@ func TestTextSearchANDOperation(t *testing.T) {
 }
 
 func TestTextSearchOROperation(t *testing.T) {
-	filePath := "/Users/rushiyadwade/Documents/go_dir/source/circuitsearch/sample.json"
+	filePath := "/Users/rushiyadwade/Documents/go_dir/source/textscout/sample.json"
 	inMemIdx := GetInMemSearch(filePath)
 	title := "Kong"
 	desc := "Godzilla"

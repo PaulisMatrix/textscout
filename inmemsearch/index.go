@@ -1,7 +1,7 @@
-package textsearch
+package inmemsearch
 
 import (
-	"circuithouse/common"
+	"textscout/common"
 )
 
 // choosen values for bitmap array lengths
