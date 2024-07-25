@@ -1,5 +1,6 @@
 # textscout
-* search API over movies dataset.
+* exploring full text search.
+* FTS over a movies dataset as an example.
 
 
 # Approach1: (Using database for searching)
@@ -59,4 +60,6 @@
             ]
         }
 
-# 
+# MISC 
+* [Paper on](https://sci-hub.se/https://dl.acm.org/doi/abs/10.1145/2600428.2609460) how can you put a FTS in a relational engine instead of reinventing a new one.
+* 
