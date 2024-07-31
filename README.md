@@ -62,4 +62,5 @@
 
 # MISC 
 * [Paper on](https://sci-hub.se/https://dl.acm.org/doi/abs/10.1145/2600428.2609460) how can you put a FTS in a relational engine instead of reinventing a new one.
+* [Introduction](https://nlp.stanford.edu/IR-book/html/htmledition/irbook.html) to Information Retrieval.
 * 
