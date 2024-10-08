@@ -63,4 +63,12 @@
 # MISC 
 * [Paper on](https://sci-hub.se/https://dl.acm.org/doi/abs/10.1145/2600428.2609460) how can you put a FTS in a relational engine instead of reinventing a new one.
 * [Introduction](https://nlp.stanford.edu/IR-book/html/htmledition/irbook.html) to Information Retrieval.
-* 
+* FTS projects :
+   * [Bleve](https://github.com/blevesearch/bleve) - Written in Go
+   * [Xapian](https://xapian.org/) - Written in C++
+   * [Tantivy](https://github.com/quickwit-oss/tantivy) - Written in Rust
+   * [Lucene](https://github.com/apache/lucene) - Written in Java
+   * [Pisa](https://github.com/pisa-engine/pisa) - Written in C++
+   * [Zincsearch](https://github.com/zincsearch/zincsearch) - Written in Go
+   * [Solr](https://github.com/apache/solr) - Written in Java
+   * [Meilisearch](https://github.com/meilisearch/meilisearch) - Written in C++
