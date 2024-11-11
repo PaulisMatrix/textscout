@@ -63,6 +63,7 @@
 # MISC 
 * [Paper on](https://sci-hub.se/https://dl.acm.org/doi/abs/10.1145/2600428.2609460) how can you put a FTS in a relational engine instead of reinventing a new one.
 * [Introduction](https://nlp.stanford.edu/IR-book/html/htmledition/irbook.html) to Information Retrieval.
+* [How does full text logs search work?](https://itnext.io/how-do-open-source-solutions-for-logs-work-elasticsearch-loki-and-victorialogs-9f7097ecbc2f)
 * FTS projects :
    * [Bleve](https://github.com/blevesearch/bleve) - Written in Go
    * [Xapian](https://xapian.org/) - Written in C++
